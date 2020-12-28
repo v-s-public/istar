@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use Yii;
 use yii\base\Model;
 
 /**
@@ -11,11 +10,10 @@ use yii\base\Model;
 class ContactForm extends Model
 {
     public $name;
+    public $secondName;
     public $email;
-    public $subject;
-    public $body;
-    public $verifyCode;
-
+    public $bDate;
+    public $number;
 
     /**
      * @return array the validation rules.
@@ -23,12 +21,14 @@ class ContactForm extends Model
     public function rules()
     {
         return [
-            // name, email, subject and body are required
-            [['name', 'email', 'subject', 'body'], 'required'],
-            // email has to be a valid email address
+            [['name'], 'required'],
+            [['b_date'], ['safe', 'date']],
+            [['name', 'second_name', 'email'], 'string', 'max' => 100],
             ['email', 'email'],
-            // verifyCode needs to be entered correctly
-            ['verifyCode', 'captcha'],
+            [['email'], 'exist',
+                'targetClass' => Contact::class,
+                'targetAttribute' => 'email'],
+            [['number'], 'string', 'max' => 13],
         ];
     }
 
@@ -38,28 +38,11 @@ class ContactForm extends Model
     public function attributeLabels()
     {
         return [
-            'verifyCode' => 'Verification Code',
+            'name' => 'Name',
+            'second_name' => 'Second Name',
+            'email' => 'Email',
+            'b_date' => 'Birth Date',
+            'number' => 'Phone Number'
         ];
-    }
-
-    /**
-     * Sends an email to the specified email address using the information collected by this model.
-     * @param string $email the target email address
-     * @return bool whether the model passes validation
-     */
-    public function contact($email)
-    {
-        if ($this->validate()) {
-            Yii::$app->mailer->compose()
-                ->setTo($email)
-                ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
-                ->setReplyTo([$this->email => $this->name])
-                ->setSubject($this->subject)
-                ->setTextBody($this->body)
-                ->send();
-
-            return true;
-        }
-        return false;
     }
 }
