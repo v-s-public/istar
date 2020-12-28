@@ -85,12 +85,16 @@ class ContactsController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($id)
+    public function actionUpdate(int $id)
     {
-        $model = $this->findModel($id);
+        $contact = $this->findModel($id);
+        $model = new ContactForm();
+        $model->attributes = $contact->attributes;
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->contact_id]);
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            if ($model->updateContact($contact)) {
+                return $this->redirect(['index']);
+            }
         }
 
         return $this->render('update', [

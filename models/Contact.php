@@ -35,11 +35,8 @@ class Contact extends ActiveRecord
     {
         return [
             [['name'], 'required'],
-            ['b_date', 'date'],
+            ['b_date', 'date', 'format' => 'php:Y-m-d'],
             [['name', 'second_name', 'email'], 'string', 'max' => 100],
-            [['second_name', 'email', 'b_date'], 'safe'],
-            ['email', 'email'],
-            ['email', 'unique']
         ];
     }
 

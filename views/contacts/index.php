@@ -29,12 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'name',
             'second_name',
             'email:email',
-            [
-                'attribute' => 'b_date',
-                'value' => function($model){
-                    return $model->b_date ?? '';
-                }
-            ],
+            'b_date',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],
