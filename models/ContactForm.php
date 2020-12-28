@@ -10,9 +10,9 @@ use yii\base\Model;
 class ContactForm extends Model
 {
     public $name;
-    public $secondName;
+    public $second_name;
     public $email;
-    public $bDate;
+    public $b_date;
     public $number;
 
     /**
@@ -23,10 +23,10 @@ class ContactForm extends Model
         return [
             [['name'], 'required'],
             ['b_date', 'safe'],
-            ['b_date', 'date'],
+            ['b_date', 'date', 'format' => 'php:Y-m-d'],
             [['name', 'second_name', 'email'], 'string', 'max' => 100],
             ['email', 'email'],
-            ['email', 'exist',
+            ['email', 'unique',
                 'targetClass' => Contact::class,
                 'targetAttribute' => 'email'],
             [['number'], 'string', 'max' => 13],
@@ -45,5 +45,17 @@ class ContactForm extends Model
             'b_date' => 'Birth Date',
             'number' => 'Phone Number'
         ];
+    }
+
+    /**
+     * Save form data to Contact model
+     *
+     * @return bool
+     */
+    public function saveContact()
+    {
+        $contact = new Contact();
+        $contact->attributes = $this->attributes;
+        return $contact->save();
     }
 }

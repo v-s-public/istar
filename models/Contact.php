@@ -35,9 +35,9 @@ class Contact extends ActiveRecord
     {
         return [
             [['name'], 'required'],
-            ['b_date', 'safe'],
             ['b_date', 'date'],
             [['name', 'second_name', 'email'], 'string', 'max' => 100],
+            [['second_name', 'email', 'b_date'], 'safe'],
             ['email', 'email'],
             ['email', 'unique']
         ];
@@ -53,7 +53,7 @@ class Contact extends ActiveRecord
             'name' => 'Name',
             'second_name' => 'Second Name',
             'email' => 'Email',
-            'b_date' => 'B Date',
+            'b_date' => 'Birth Date',
         ];
     }
 
