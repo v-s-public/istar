@@ -18,6 +18,8 @@ use yii\db\ActiveRecord;
  */
 class Contact extends ActiveRecord
 {
+    public $primaryKey = 'contact_id';
+
     /**
      * {@inheritdoc}
      */
