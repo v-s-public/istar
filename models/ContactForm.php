@@ -22,10 +22,11 @@ class ContactForm extends Model
     {
         return [
             [['name'], 'required'],
-            [['b_date'], ['safe', 'date']],
+            ['b_date', 'safe'],
+            ['b_date', 'date'],
             [['name', 'second_name', 'email'], 'string', 'max' => 100],
             ['email', 'email'],
-            [['email'], 'exist',
+            ['email', 'exist',
                 'targetClass' => Contact::class,
                 'targetAttribute' => 'email'],
             [['number'], 'string', 'max' => 13],

@@ -35,9 +35,11 @@ class Contact extends ActiveRecord
     {
         return [
             [['name'], 'required'],
-            [['b_date'], ['safe', 'date']],
+            ['b_date', 'safe'],
+            ['b_date', 'date'],
             [['name', 'second_name', 'email'], 'string', 'max' => 100],
-            [['email'], ['email', 'unique']],
+            ['email', 'email'],
+            ['email', 'unique']
         ];
     }
 
