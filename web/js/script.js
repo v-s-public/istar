@@ -4,7 +4,6 @@ $( document ).ready(function() {
     let currentAction = getCurrentAction();
     let index = getOperationIndex(currentAction);
 
-
     addNumberButton.on('click', function () {
         phoneNumbersContainer.append(appendPhoneNumberField(index))
         index++
@@ -25,14 +24,13 @@ $( document ).ready(function() {
             '\t<label class="control-label" for="phone-number-'+ index +'">Phone number</label>\n' +
             '\t<div class="row">\n' +
             '\t\t<div class="col-sm-11">\n' +
-            '\t\t\t<input type="text" id="phone-number-'+ index +'" class="form-control phone-number-input" name="ContactForm[number]['+ index +']" maxlength="13">\n' +
+            '\t\t\t<input type="text" id="phone-number-'+ index +'" data-index="'+ index +'" class="form-control phone-number-input dynamic-input" name="ContactForm[number]['+ index +']" maxlength="13">\n' +
             '\t\t</div>\n' +
             '\t\t<div class="col-sm-1">\n' +
             '\t\t\t<div class="btn btn-danger delete-btn" data-index="'+ index +'">Delete</div>\n' +
             '\t\t</div>\n' +
             '\t</div>\n' +
             '\n' +
-            '\t<div class="help-block"></div>\n' +
             '</div>';
     }
     

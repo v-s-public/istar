@@ -1,5 +1,6 @@
 <?php
 
+use app\assets\ValidateAsset;
 use kartik\date\DatePicker;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
@@ -9,11 +10,12 @@ use yii\widgets\ActiveForm;
 /* @var $form yii\widgets\ActiveForm */
 
 $this->registerJsFile('@web/js/script.js', ['depends' => 'yii\web\YiiAsset']);
+$this->registerJsFile('@web/js/form-validation.js', ['depends' => [ValidateAsset::class]]);
 ?>
 
 <div class="contact-form" <?= (isset($model)) ? 'data-current-action="update"' : 'data-current-action="create"'?>>
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin(['id' => 'contact-form']); ?>
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
@@ -47,14 +49,12 @@ $this->registerJsFile('@web/js/script.js', ['depends' => 'yii\web\YiiAsset']);
                         <label class="control-label" for="phone-number-<?=$key?>">Phone number</label>
                         <div class="row">
                             <div class="col-sm-11">
-                                <input type="text" id="phone-number-<?=$key?>" class="form-control phone-number-input" name="ContactForm[number][<?=$key?>]" maxlength="13" value="<?=$number->number?>">
+                                <input type="text" id="phone-number-<?=$key?>" data-index="<?=$key?>" class="form-control phone-number-input dynamic-input" name="ContactForm[number][<?=$key?>]" maxlength="13" value="<?=$number->number?>">
                             </div>
                             <div class="col-sm-1">
                                 <div class="btn btn-danger delete-btn" data-index="<?=$key?>">Delete</div>
                             </div>
                         </div>
-
-                        <div class="help-block"></div>
                     </div>
                 <?php endforeach;?>
             <?php endif;?>
