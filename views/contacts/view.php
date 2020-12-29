@@ -33,7 +33,18 @@ $this->params['breadcrumbs'][] = $this->title;
             'name',
             'second_name',
             'email:email',
-            'b_date',
+            [
+                'attribute' => 'numbers',
+                'value' => function($model){
+                    $numbers = ($model->numbers);
+                    $numbersList = '';
+                    foreach ($numbers as $number) {
+                        $numbersList .= $number->number . '<br>';
+                    }
+                    return $numbersList;
+                },
+                'format' => 'raw'
+            ],
         ],
     ]) ?>
 

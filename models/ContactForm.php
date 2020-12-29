@@ -32,8 +32,7 @@ class ContactForm extends Model
             ['email', 'email'],
             [['email'], 'default', 'value'=> NULL],
             ['email', 'validateEmail'],
-            [['number'], 'string', 'max' => 13],
-            ['number','match','pattern'=>'/^(?:\+38)?(?:0[0-99]{2}[0-9]{3}[0-9]{2}[0-9]{2}|0[0-99]{2}[0-9]{3}[0-9]{2}[0-9]{2}|0[0-99]{2}[0-9]{7})$/'],
+            ['number', 'each', 'rule' => ['match','pattern'=>'/^(?:\+38)?(?:0[0-99]{2}[0-9]{3}[0-9]{2}[0-9]{2}|0[0-99]{2}[0-9]{3}[0-9]{2}[0-9]{2}|0[0-99]{2}[0-9]{7})$/']],
         ];
     }
 
@@ -82,10 +81,9 @@ class ContactForm extends Model
         $contact->attributes = $this->attributes;
         $contact->save();
 
-        $number = new Number();
-        $number->contact_id = $contact->contact_id;
-        $number->number = $this->number;
-        return $number->save();
+        $this->addNewNumbersToContact($contact);
+
+        return true;
     }
 
     /**
@@ -99,9 +97,11 @@ class ContactForm extends Model
         $contact->attributes = $this->attributes;
         $contact->save();
 
-        $number = Number::find()->where(['contact_id' => $contact->contact_id])->one();
-        $number->number = $this->number;
-        return $number->save();
+        $this->deleteContactNumbers($contact);
+
+        $this->addNewNumbersToContact($contact);
+
+        return true;
     }
 
     /**
@@ -112,5 +112,32 @@ class ContactForm extends Model
     private function getContactByEmail()
     {
         return Contact::find()->where(['email' => $this->email])->one();
+    }
+
+    /**
+     * Delete Contact Numbers
+     *
+     * @param Contact $contact
+     */
+    private function deleteContactNumbers(Contact $contact)
+    {
+        foreach ($contact->numbers as $number) {
+            $number->delete();
+        }
+    }
+
+    /**
+     * Add New Numbers To Contact
+     *
+     * @param Contact $contact
+     */
+    private function addNewNumbersToContact(Contact $contact)
+    {
+        foreach ($this->number as $phoneNumber) {
+            $number = new Number();
+            $number->contact_id = $contact->contact_id;
+            $number->number = $phoneNumber;
+            $number->save();
+        }
     }
 }
