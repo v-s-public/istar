@@ -11,6 +11,8 @@ use app\models\Contact;
  */
 class ContactSearch extends Contact
 {
+    public $numbers;
+
     /**
      * {@inheritdoc}
      */
@@ -18,7 +20,7 @@ class ContactSearch extends Contact
     {
         return [
             [['contact_id'], 'integer'],
-            [['name', 'second_name'], 'safe'],
+            [['name', 'second_name', 'numbers'], 'safe'],
         ];
     }
 
@@ -43,10 +45,23 @@ class ContactSearch extends Contact
         $query = Contact::find();
 
         // add conditions that should always apply here
+        $query->joinWith(['numbers']);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
+
+        $dataProvider->sort->attributes['numbers'] = [
+            // The tables are the ones our relation are configured to
+            // in my case they are prefixed with "tbl_"
+            'asc' => ['numbers.number' => SORT_ASC],
+            'desc' => ['numbers.number' => SORT_DESC],
+        ];
+
+        // No search? Then return data Provider
+        if (!($this->load($params) && $this->validate())) {
+            return $dataProvider;
+        }
 
         $this->load($params);
 
@@ -64,7 +79,8 @@ class ContactSearch extends Contact
 
         $query->andFilterWhere(['like', 'name', $this->name])
             ->andFilterWhere(['like', 'second_name', $this->second_name])
-            ->andFilterWhere(['like', 'email', $this->email]);
+            ->andFilterWhere(['like', 'email', $this->email])
+            ->andFilterWhere(['like', 'numbers.number', $this->numbers]);
 
         return $dataProvider;
     }

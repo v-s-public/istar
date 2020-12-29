@@ -28,6 +28,8 @@ use yii\widgets\ActiveForm;
         ]
     ]);?>
 
+    <?= $form->field($model, 'number')->textInput(['maxlength' => true, 'value' => isset($numbers) ? $numbers[0]->number : '']) ?>
+
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
     </div>

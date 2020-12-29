@@ -88,6 +88,7 @@ class ContactsController extends Controller
     public function actionUpdate(int $id)
     {
         $contact = $this->findModel($id);
+        $numbers = $contact->numbers;
         $model = new ContactForm();
         $model->attributes = $contact->attributes;
 
@@ -99,6 +100,7 @@ class ContactsController extends Controller
 
         return $this->render('update', [
             'model' => $model,
+            'numbers' => $numbers
         ]);
     }
 

@@ -23,8 +23,8 @@ class ContactForm extends Model
     public function rules()
     {
         return [
-            [['name'], 'required'],
-            [['contact_id', 'second_name', 'date', 'email'], 'safe'],
+            [['name', 'number'], 'required'],
+            [['contact_id', 'second_name', 'b_date', 'email'], 'safe'],
             [['name', 'second_name', 'email'], 'string', 'max' => 100],
             ['b_date', 'date', 'format' => 'php:Y-m-d'],
             [['second_name'], 'default', 'value'=> NULL],
@@ -33,6 +33,7 @@ class ContactForm extends Model
             [['email'], 'default', 'value'=> NULL],
             ['email', 'validateEmail'],
             [['number'], 'string', 'max' => 13],
+            ['number','match','pattern'=>'/^(?:\+38)?(?:0[0-99]{2}[0-9]{3}[0-9]{2}[0-9]{2}|0[0-99]{2}[0-9]{3}[0-9]{2}[0-9]{2}|0[0-99]{2}[0-9]{7})$/'],
         ];
     }
 
@@ -79,7 +80,12 @@ class ContactForm extends Model
     {
         $contact = new Contact();
         $contact->attributes = $this->attributes;
-        return $contact->save();
+        $contact->save();
+
+        $number = new Number();
+        $number->contact_id = $contact->contact_id;
+        $number->number = $this->number;
+        return $number->save();
     }
 
     /**
@@ -91,7 +97,11 @@ class ContactForm extends Model
     public function updateContact(Contact $contact)
     {
         $contact->attributes = $this->attributes;
-        return $contact->save();
+        $contact->save();
+
+        $number = Number::find()->where(['contact_id' => $contact->contact_id])->one();
+        $number->number = $this->number;
+        return $number->save();
     }
 
     /**
