@@ -10,12 +10,12 @@ use yii\base\Model;
  */
 class ContactForm extends Model
 {
+    public $contact_id;
     public $name;
+    public $second_name;
     public $email;
-    public $subject;
-    public $body;
-    public $verifyCode;
-
+    public $b_date;
+    public $number;
 
     /**
      * @return array the validation rules.
@@ -23,13 +23,37 @@ class ContactForm extends Model
     public function rules()
     {
         return [
-            // name, email, subject and body are required
-            [['name', 'email', 'subject', 'body'], 'required'],
-            // email has to be a valid email address
+            [['name', 'number'], 'required'],
+            [['contact_id', 'second_name', 'b_date', 'email'], 'safe'],
+            [['name', 'second_name', 'email'], 'string', 'max' => 100],
+            ['b_date', 'date', 'format' => 'php:Y-m-d'],
+            [['second_name'], 'default', 'value'=> NULL],
+            [['b_date'], 'default', 'value'=> NULL],
             ['email', 'email'],
-            // verifyCode needs to be entered correctly
-            ['verifyCode', 'captcha'],
+            [['email'], 'default', 'value'=> NULL],
+            ['email', 'validateEmail'],
+            ['number', 'each', 'rule' => ['match','pattern'=>'/^(?:\+38)?(?:0[0-99]{2}[0-9]{3}[0-9]{2}[0-9]{2}|0[0-99]{2}[0-9]{3}[0-9]{2}[0-9]{2}|0[0-99]{2}[0-9]{7})$/']],
         ];
+    }
+
+    /**
+     * Custom validation rule for e-mail
+     *
+     * @param $attribute
+     */
+    public function validateEmail($attribute)
+    {
+        $contact = $this->getContactByEmail();
+
+        if ($this->contact_id) {
+            if ($contact) {
+                if ($contact->contact_id !== $this->contact_id) {
+                    $this->addError($attribute, 'This email in use!');
+                }
+            }
+        } else {
+            $contact ? $this->addError($attribute, 'This email in use!') : null;
+        }
     }
 
     /**
@@ -38,28 +62,82 @@ class ContactForm extends Model
     public function attributeLabels()
     {
         return [
-            'verifyCode' => 'Verification Code',
+            'name' => 'Name',
+            'second_name' => 'Second Name',
+            'email' => 'Email',
+            'b_date' => 'Birth Date',
+            'number' => 'Phone Number'
         ];
     }
 
     /**
-     * Sends an email to the specified email address using the information collected by this model.
-     * @param string $email the target email address
-     * @return bool whether the model passes validation
+     * Save form data to Contact model
+     *
+     * @return bool
      */
-    public function contact($email)
+    public function saveContact()
     {
-        if ($this->validate()) {
-            Yii::$app->mailer->compose()
-                ->setTo($email)
-                ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
-                ->setReplyTo([$this->email => $this->name])
-                ->setSubject($this->subject)
-                ->setTextBody($this->body)
-                ->send();
+        $contact = new Contact();
+        $contact->attributes = $this->attributes;
+        $contact->save();
 
-            return true;
+        $this->addNewNumbersToContact($contact);
+
+        return true;
+    }
+
+    /**
+     * Update contact
+     *
+     * @param Contact $contact
+     * @return bool
+     */
+    public function updateContact(Contact $contact)
+    {
+        $contact->attributes = $this->attributes;
+        $contact->save();
+
+        $this->deleteContactNumbers($contact);
+
+        $this->addNewNumbersToContact($contact);
+
+        return true;
+    }
+
+    /**
+     * Find contact by e-mail
+     *
+     * @return array|\yii\db\ActiveRecord|null
+     */
+    private function getContactByEmail()
+    {
+        return Contact::find()->where(['email' => $this->email])->one();
+    }
+
+    /**
+     * Delete Contact Numbers
+     *
+     * @param Contact $contact
+     */
+    private function deleteContactNumbers(Contact $contact)
+    {
+        foreach ($contact->numbers as $number) {
+            $number->delete();
         }
-        return false;
+    }
+
+    /**
+     * Add New Numbers To Contact
+     *
+     * @param Contact $contact
+     */
+    private function addNewNumbersToContact(Contact $contact)
+    {
+        foreach ($this->number as $phoneNumber) {
+            $number = new Number();
+            $number->contact_id = $contact->contact_id;
+            $number->number = $phoneNumber;
+            $number->save();
+        }
     }
 }
